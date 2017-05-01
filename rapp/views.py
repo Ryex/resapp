@@ -43,6 +43,6 @@ def stats(request):
     return render(request, 'rapp/statistics.html')
 
 #return ONE instance
-def student_detail(request, pk):
+def student_profile(request, pk):
     student = get_object_or_404(Student, pk=pk)
     return render(request, 'rapp/student_profile.html', {'student': student}) 

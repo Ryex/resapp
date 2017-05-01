@@ -18,11 +18,11 @@
     <tbody>
         {% for ra in ras %}
         <tr data-toggle="collapse" data-target="{{ ra.student_info.id }}"" class="accordion-toggle">
-            <td>{{ ra.student_info }}</td>
+            <td>{{ ra }}</td>
             <td>{{ ra.hall }}</td>
-            <td>{{ ra.student_info.room_number }}</td>
+            <td>{{ ra.room_number }}</td>
             <td>{{ ra.student_email }}</td>
-            <td>{{ ra.student_info.id }}</td>
+            <td>{{ ra.id }}</td>
             <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ ra.student_info.id }}">View Emergency Contact Info</td>
         </tr>
         <tr>

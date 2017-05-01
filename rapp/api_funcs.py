@@ -16,7 +16,7 @@ def get_properties(obj):
     return props
 
 def is_normal_type(obj):
-    return type(obj) in (int, str, bool, list, dict, tuple):
+    return type(obj) in (int, str, bool, list, dict, tuple)
 
 def extend_depth(props):
     ext = { k : v if is_normal_type(v) else get_properties(v) for k, v in props.items()}
@@ -57,7 +57,7 @@ def render_json(result, err):
     return JsonResponse(res, status=status)
 
 
-def authorize(func, ac_level=):
+def authorize(func):
     '''
     if the header looks like
     "Authorization: Token 4SMPkrseLzXWYxoaDrTrQOzIwmb3IJCrSc40RvKqkpM="

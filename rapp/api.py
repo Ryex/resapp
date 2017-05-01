@@ -8,7 +8,7 @@ ENDPOINTS = [
     # Auth
 
     "auth",
-    "expire"
+    "expire",
 
     # GET
 
@@ -42,7 +42,7 @@ ENDPOINTS = [
     "getRoundTemplate",
     "getRound",
     "getRoundStatus",
-    "getRoundData"
+    #"getRoundData",
 
     # POST
 
@@ -66,7 +66,7 @@ ENDPOINTS = [
     "searchResidentByArea",
     "searchResidentByHall",
     "searchResidentByName",
-    "searchResidentFull"
+    "searchResidentFull",
 ]
 
 IGNORE_PARAMS = ("res",)
@@ -83,7 +83,7 @@ def make_url_patterns():
         if hasattr(func, "__urlpattern__"):
             urlpat = func.__urlpattern__
             pattern = r"^%/%/%/$".format(URL_TOP, endpoint.lower(), urlpat)
-            url_patterns.append(url(pattern))
+            url_patterns.append(url(pattern, func))
         else:
             continue
         # sig = signature(func)

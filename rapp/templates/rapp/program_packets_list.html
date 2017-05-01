@@ -6,28 +6,40 @@
  <table class="table table-striped" style="border-collapse:collapse;">
     <thead>
         <tr>
-            <th>Date</th>   
-            <th>Hall</th>
-            <th>Room #</th>
-            <th>Resident Name</th>
-            <th>RA</th>
-            <th>Form ID</th>
-            <th>View Form</th>
+            <th>Program Title</th>   
+            <th>Resident Advisor</th>
+            <th>Residence Hall</th>
+            <th>Program Date</th>
+            <th>Program Time</th>
+            <th>Coordinator Approved</th>
+            <th>Proposed Cost</th>
+            <th>View Form Details</th>
         </tr>
     </thead>
     <tbody>
         {% for form in forms %}
         <tr data-toggle="collapse" data-target="{{ form.id }}"" class="accordion-toggle">
-            <td>{{ form.published_date }}</td>
-            <td><a href="{% url 'form_detail' pk=form.id %}"> {{ form.status }}</a></td>
-            <td>{{ form.student.room_number }}</td>
-            <td><a href="{% url 'student_detail' pk=form.student.pk %}"> {{ form.student }}</a></td>
-            <td><a href="{% url 'form_detail' pk=form.pk %}"> {{ form.author }}</a></td>
-            <td>{{ form.id }}</td>
+            <td>{{ form.program_title }}</td>
+            <td> {{ form.author }}</td>
+            <td>{{ form.hall }}</td>
+            <td>{{ form.program_date }}</td>
+            <td>{{ form.program_time }}</td>
+            <td>{{ form.coordinator_approval }}</td>
+            <td>${{ form.proposed_cost }}</td>
             <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ form.id }}">View Form Details</td>
         </tr>
         <tr>
-            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse"><blockquote><a href="#">View Student Signature</a><br><a href="#">View RA Signature</a></blockquote></div></td>
+            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse">
+            <blockquote>
+                <b>First Choice Location: </b> {{ form.location1 }} &ensp;&ensp;&ensp; Needs Reservation: {{ form.space_need_reservation1 }}; Reservation Made: {{ form.reservation_made1 }}
+                <br><b>Second Choice Location: </b> {{ form.location2 }} &ensp;&ensp;&ensp; Needs Reservation: {{ form.space_need_reservation2 }}; Reservation Made: {{ form.reservation_made2 }}
+                <br>
+                <b>Target Audience: </b> {{ form.target_audience }}
+                <br><b>Advertising: </b> {{ form.advertising }} 
+                <br><b>Program Description: </b> {{ form.program_description }}
+                <br><b>Supplies: </b> {{ form.supplies }}
+                <br><b>Signed by: </b> {{ form.coordinator_sig }} on {{ form.sig_date }}
+            </blockquote></div></td>
         </tr>
       {% endfor %}
   </tbody>
