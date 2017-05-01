@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import datetime
+import dateutil.parser
 from django.http import JsonResponse
 import django.contrib.auth
 from django.core.exceptions import ObjectDoesNotExist
@@ -177,7 +178,7 @@ def getUser(req, user_id):
     user = None
 
     _round = req.GET.get("round", "False")
-    _depth =  req.GET.get("depth", "0")
+    _depth = req.GET.get("depth", "0")
 
     try:
         user = User.objects.get(id=uid)
@@ -185,9 +186,11 @@ def getUser(req, user_id):
         pass
 
     if user:
-        req.user = user
-        req.token = token
-        authflag = True
+        data = get_properties(user)
+        data = trunate_to_ids(data)
+        result = {
+            "user": data
+        }
     else:
         err = {
             "msg": "User does not exist",
@@ -198,9 +201,9 @@ def getUser(req, user_id):
     return render_json(result, err)
 
 
-@api_url(r"")
+@api_url(r"getuserbyname/(\w+)/(\w+)")
 @authorize
-def getUserByName(req):
+def getUserByName(req, first, last):
     """"""
     result = None
     err = None
@@ -210,9 +213,9 @@ def getUserByName(req):
     return render_json(result, err)
 
 
-@api_url(r"")
+@api_url(r"getresidentbyname/(\w+)/(\w+)")
 @authorize
-def getResidentByName(req):
+def getResidentByName(req, first, last):
     """"""
     result = None
     err = None
@@ -222,9 +225,9 @@ def getResidentByName(req):
     return render_json(result, err)
 
 
-@api_url(r"")
+@api_url(r"getresidentbyid/([0-9]+)")
 @authorize
-def getResidentByID(req):
+def getResidentByID(req, rid):
     """"""
     result = None
     err = None
@@ -234,9 +237,9 @@ def getResidentByID(req):
     return render_json(result, err)
 
 
-@api_url(r"")
+@api_url(r"getresidentbyroom/(.+)/(.+)")
 @authorize
-def getResidentByRoom(req):
+def getResidentByRoom(req, hall, room):
     """"""
     result = None
     err = None
@@ -593,6 +596,70 @@ def createForm(req):
 
     return render_json(result, err)
 
+
+@api_url(r"submitlockoutform")
+@authorize
+def submmitLockoutForm(req):
+    """"""
+    result = None
+    err = None
+
+    needed_keys = set(["author", "hall", "room_number", "student", "student_sig", "verification_method"])
+    extra_keys = set(["date"])
+
+    data = req.POST.get("data", default={})
+
+    data_keys = set(data.keys())
+
+    if data_keys.issubset(needed_keys | extra_keys) and needed_keys.issubset(data_keys):
+        try:
+            form = RoomEntryRequestForm()
+            author_name = data["author"].split(" ")
+            form.author = RA.objects.get(first_name=author_name[0], last_name=author_name[1])
+            form.hall = ResidenceHall.objects.get(name=data["hall"])
+            room_number = data["room_number"]
+            student_name = data["student"].split(" ")
+            student = Resident.objects.get(first_name=student_name[0], last_name=student_name[1])
+            student_sig = data["student_sig"]
+            verification_method = data["verification_method"]
+
+            sig = base64.decodestring(data["student_sig"])
+
+            form.student_sig = bytes(sig)
+
+            if extra_keys.issubset(data_keys):
+                form.date = datetime.datetime.strptime(date["date"], "%Y-%m-%d")
+
+            else:
+                form.date = datetime.date.today()
+
+            form.save()
+
+        except ObjectDoesNotExist as e:
+            err = {
+                "msg": "Bad form data, objects dont't exist: {}".format(e),
+                "code": 400,
+                "source": "api/auth"
+            }
+    else:
+        err = {
+            "msg": "Bad form data, keys mismatch.\ngot: {} \nneed: {} \nallowed: {}".format(
+                list(data_keys),
+                list(needed_keys),
+                list(needed_keys | extra_keys)),
+            "code": 400,
+            "source": "api/auth"
+        }
+
+    # author
+    # hall
+    # room
+    # student
+    # sig BASE64 string with newlines
+
+    # TODO
+
+    return render_json(result, err)
 
 @api_url(r"")
 @authorize
