@@ -5,9 +5,9 @@
 
 {% block content %}
 <div class="col-md-6">
-<h4>Welcome, Mitch!</h4>
+<h4>Welcome, {{ user.first_name }}</h4>
 {% load static %}
-<img src="{% static 'ackchuyually.png' %}" width="300;" height="300;" alt="My image"/>
+<img src="{% static 'pic_placeholder.jpg' %}" width="300;" height="300;" alt="My image"/>
 </div>
 <div class="col-md-6">
 <h4>Your Notifications</h4>

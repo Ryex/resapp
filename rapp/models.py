@@ -60,15 +60,15 @@ class ResidenceHall(models.Model):
 class FormBase(models.Model):
     author = models.ForeignKey('RA', null=True)
     hall = models.ForeignKey('ResidenceHall', null=True, verbose_name="Residence Hall")
-    room_number = models.CharField(blank=True, null=True, max_length=10)
     date = models.DateTimeField(null=True)
 
     class Meta:
         abstract = True
 
 class RoomEntryRequestForm(FormBase):
+    room_number = models.CharField(null=True, max_length=10)
     student = models.ForeignKey('Resident', null=True, on_delete=models.SET_NULL, verbose_name="Resident name")
-    student_sig = models.BinaryField(default=0, verbose_name="Resident signature image")
+    student_sig = models.BinaryField(verbose_name="Resident signature image")
     verification_method = models.TextField(null=True, max_length=40)
 
     def send_copy(self):
@@ -91,7 +91,7 @@ class ProgramPacket(FormBase):
     advertising = models.TextField(null=True, max_length=200, verbose_name="Advertising method")
     coordinator_approval = models.BooleanField(default=False, verbose_name="Coordinator approval")
     coordinator_sig = models.ForeignKey('auth.user', blank=True, verbose_name="Signing RLC", null=True)
-    sig_date = models.DateField(null=True, verbose_name="Signed date")
+    sig_date = models.DateField(null=True, blank=True, verbose_name="Signed date")
     program_description = models.TextField(null=True, max_length=500)
     supplies = models.TextField(null=True, max_length=300, verbose_name="Supplies needed")
     proposed_cost = models.PositiveIntegerField(null=True, verbose_name="Proposed cost (to the nearest dollar)")
@@ -106,6 +106,7 @@ class ProgramPacket(FormBase):
         return '%s Program Packet from %s submitted on %s' % (self.program_title, self.author, self.date)
 
 class SafetyInspectionViolation(FormBase):
+    room_number = models.CharField(null=True, max_length=10)
     prohibited_appliances = models.BooleanField(default=False)
     candle_incense = models.BooleanField(default=False, verbose_name="Candles or incense")
     extension_cords = models.BooleanField(default=False)
@@ -114,8 +115,8 @@ class SafetyInspectionViolation(FormBase):
     animals = models.BooleanField(default=False)
     alcohol_drugs = models.BooleanField(default=False, verbose_name="Alcohol or drugs")
     fire_safety = models.BooleanField(default=False)
-    other = models.TextField(null=True, max_length=200, blank=True)
-    sig = models.BinaryField(default=0, verbose_name="Student signature")
+    other = models.TextField(null=True, max_length=200, default='None', blank=True)
+    sig = models.BinaryField(verbose_name="Student signature")
     additional_action = models.BooleanField(default=False, verbose_name="Additional action required")
 
     def __str__(self):
@@ -134,7 +135,7 @@ class FireAlarm(FormBase):
         ('FIRE', 'Fire')
     )
     cause = models.CharField(choices=ALARM_CAUSES, null=True, max_length=20)
-    fire_explanation = models.TextField(max_length=200, null=True, blank=True, help_text="If there was an actual fire, please explain here")
+    fire_explanation = models.TextField(default='Not a real fire', max_length=200, null=True, blank=True, help_text="If there was an actual fire, please explain here")
     other_ras = models.TextField(max_length=500, null=True, default="none", verbose_name="Other RAs involved or present")
     notes = models.TextField(max_length=500, null=True, blank=True, verbose_name="Additional notes")
 

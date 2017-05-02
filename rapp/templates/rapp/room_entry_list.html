@@ -29,7 +29,7 @@
     <a href="#" class="pop">
         {% for form in forms %}
         <tr data-toggle="collapse" data-target="{{ form.id }}"" class="accordion-toggle">
-            <td>{{ form.date }}</td>
+            <td>{{ form.date|date:"M d, Y" }}</td>
             <td>{{ form.hall.name }}</td>
             <td>{{ form.room_number }}</td>
             <td><a href="#"> {{ form.student }}</a></td>
@@ -38,7 +38,8 @@
             <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ form.id }}">View Form Details</td>
         </tr>
         <tr>
-            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse"><blockquote><a href="#" class="pop">View Student Signature</a>
+            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse">
+            <blockquote><a href="#" class="pop">View Student Signature</a>
             <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">              
@@ -49,7 +50,10 @@
                 </div>
               </div>
             </div><br>
-            Verification Method: {{ form.verification_method }}</div></td>
+            Verification Method: {{ form.verification_method }}<br>
+            <a href="{% url 'admin:rapp_roomentryrequestform_change' form.id %}">Edit Form Info</a><br>
+            </td>
+            </blockquote></div>
         </tr>
       {% endfor %}
   </tbody>

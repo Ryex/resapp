@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load admin_urls %}
 
 <html>
 
@@ -40,20 +41,20 @@
             <li class="dropdown">
                   <a href="#" class="dropdown-toggle" data-toggle="dropdown"></i> Residence Halls <span class="caret"></span></a>
                   <ul class="dropdown-menu" role="menu">
-                    <li><a href="/halls/1">South</a></li>
-                    <li><a href="/halls/2">West</a></li>
-                    <li><a href="/halls/3">Alta</a></li>
-                    <li><a href="/halls/4">Torres</a></li>
+                    <li><a href="/halls/1">West Hall</a></li>
+                    <li><a href="/halls/2">ALtamirano Apartments</a></li>
+                    <li><a href="/halls/3">Driscoll</a></li>
+                    <li><a href="/halls/4">Mountain Springs</a></li>
                     <li><a href="/halls/5">Baca</a></li>
-                    <li><a href="/halls/6">Presidents</a></li>
-                    <li><a href="/halls/7">Desert Willow</a></li>
-                    <li><a href="/halls/8">Driscoll</a></li>
+                    <li><a href="/halls/6">South Hall</a></li>
+                    <li><a href="/halls/7">Torres</a></li>
+                    <li><a href="/halls/8">Presidents</a></li>
                 </ul>
             </li>
             <li><a href="/ra_list">RAs</a></li>
             <li><a href="/statistics">Statistics</a></li>
             <li><a href="/admin">Admin Management</a></li>
-            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            <li><a href="{% url 'logout' %}?next=/logged_out"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
         </ul>
         </div>
             {% block content %}

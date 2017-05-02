@@ -9,25 +9,38 @@
             <th>Date</th>   
             <th>Hall</th>
             <th>Room #</th>
-            <th>Resident Name</th>
             <th>RA</th>
             <th>Form ID</th>
+            <th>Additional Action Required</th>
             <th>View Form</th>
         </tr>
     </thead>
     <tbody>
         {% for form in forms %}
         <tr data-toggle="collapse" data-target="{{ form.id }}"" class="accordion-toggle">
-            <td>{{ form.published_date }}</td>
-            <td><a href="{% url 'form_detail' pk=form.id %}"> {{ form.status }}</a></td>
-            <td>{{ form.student.room_number }}</td>
-            <td><a href="{% url 'student_detail' pk=form.student.pk %}"> {{ form.student }}</a></td>
-            <td><a href="{% url 'form_detail' pk=form.pk %}"> {{ form.author }}</a></td>
+            <td>{{ form.date|date:"M d, Y" }}</td>
+            <td>{{ form.hall }}</td>
+            <td>{{ form.room_number }}</td>
+            <td>{{ form.author }}</td>
             <td>{{ form.id }}</td>
+            <td>{{ form.additional_action }}</td>
             <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ form.id }}">View Form Details</td>
         </tr>
         <tr>
-            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse"><blockquote><a href="#">View Student Signature</a><br><a href="#">View RA Signature</a></blockquote></div></td>
+            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse">
+            <blockquote>
+                <a href="#">View Student Signature</a><br>
+                <b>Prohibited Appliances:</b> {{ form.prohibited_appliances }}<br>
+                <b>Candle/Incense:</b> {{ form.candle_incense }}<br>
+                <b>Extension Cords:</b> {{ form.extension_cords }}<br>
+                <b>Lounge Furniture:</b> {{ form.lounge_furniture }}<br>
+                <b>Trash Violation:</b> {{ form.trash_violation }}<br>
+                <b>Animals:</b> {{ form.animals }}<br>
+                <b>Alcohol/Drugs:</b> {{ form.alcohol_drugs }}<br>
+                <b>Fire Safety:</b> {{ form.fire_safety }}<br>
+                <b>other:</b> {{ form.other }}<br>
+                <a href="{% url 'admin:rapp_safetyinspectionviolation_change' form.id %}">Edit Info</a>
+            </blockquote></div></td>
         </tr>
       {% endfor %}
   </tbody>

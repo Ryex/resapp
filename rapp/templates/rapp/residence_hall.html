@@ -1,6 +1,6 @@
 {% extends 'rapp/base.html' %}
 {% block title %}
-	{{ students.0.status }}
+	{{ students.0.hall }}
 {% endblock %}
 
 {% block content %}
@@ -17,15 +17,15 @@
     </thead>
     <tbody>
         {% for student in students %}
-        <tr data-toggle="collapse" data-target="{{ student.id }}"" class="accordion-toggle">
+        <tr data-toggle="collapse" data-target="{{ student.student_id }}"" class="accordion-toggle">
             <td>{{ student.room_number }}</td>
             <td>{{ student }}</td>
             <td>{{ student.date_of_birth }}</td>
-            <td>{{ student.id }}</td>
-            <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ student.id }}">View Student Notes</td>
+            <td>{{ student.student_id }}</td>
+            <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ student.student_id }}">View Student Notes</td>
         </tr>
         <tr>
-            <td colspan="7" class="hiddenRow"><div id="{{ student.id }}" class="accordian-body collapse"><blockquote>Blah blah blah notes go here. Possibly student with special needs. <br>More notes blah blah</blockquote></div></td>
+            <td colspan="7" class="hiddenRow"><div id="{{ student.student_id }}" class="accordian-body collapse"><blockquote>Blah blah blah notes go here. Possibly student with special needs. <br>More notes blah blah</blockquote></div></td>
         </tr>
       {% endfor %}
   </tbody>

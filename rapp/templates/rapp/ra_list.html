@@ -11,8 +11,8 @@
             <th>Hall</th>
             <th>Room #</th>
             <th>Email</th>
+            <th>View/Edit Additional Info</th>
             <th>Student ID</th>
-            <th>View Emergency Info</th>
         </tr>
     </thead>
     <tbody>
@@ -22,11 +22,20 @@
             <td>{{ ra.hall }}</td>
             <td>{{ ra.room_number }}</td>
             <td>{{ ra.student_email }}</td>
-            <td>{{ ra.id }}</td>
-            <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ ra.student_info.id }}">View Emergency Contact Info</td>
+            <td>{{ ra.student_id }}</td>
+            <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ ra.student_id }}">View Additional Info</td>
+            <td></td>
         </tr>
         <tr>
-            <td colspan="7" class="hiddenRow"><div id="{{ ra.student_info.id }}" class="accordian-body collapse"><blockquote>Emergency Contact: {{ ra.emergency_contact }}</blockquote></div></td>
+            <td colspan="7" class="hiddenRow"><div id="{{ ra.student_id }}" class="accordian-body collapse">
+            <blockquote>
+                <b>Date of Birth: </b> {{ ra.date_of_birth }} <br>
+                <b>Address: </b> {{ ra.home_addr }}<br>
+                <b>Emergency Contact: </b> {{ ra.emergency_contact }}<br>
+                <b>Contact Relationship: </b> {{ ra.contact_relationship }}<br>
+                <b>Emergency Contact Phone Number: </b> {{ ra.emergency_contact_phone }}<br>
+                <a href="{% url 'admin:rapp_ra_change' ra.student_id %}">Edit Student Info</a>
+            </blockquote></div></td>
         </tr>
       {% endfor %}
   </tbody>

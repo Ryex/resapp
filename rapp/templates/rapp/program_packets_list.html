@@ -20,9 +20,9 @@
         {% for form in forms %}
         <tr data-toggle="collapse" data-target="{{ form.id }}"" class="accordion-toggle">
             <td>{{ form.program_title }}</td>
-            <td> {{ form.author }}</td>
+            <td>{{ form.author }}</td>
             <td>{{ form.hall }}</td>
-            <td>{{ form.program_date }}</td>
+            <td>{{ form.program_date|date:"M d, Y" }}</td>
             <td>{{ form.program_time }}</td>
             <td>{{ form.coordinator_approval }}</td>
             <td>${{ form.proposed_cost }}</td>
@@ -39,6 +39,7 @@
                 <br><b>Program Description: </b> {{ form.program_description }}
                 <br><b>Supplies: </b> {{ form.supplies }}
                 <br><b>Signed by: </b> {{ form.coordinator_sig }} on {{ form.sig_date }}
+                <br><a href="{% url 'admin:rapp_programpacket_change' form.id %}">Edit Information</a>
             </blockquote></div></td>
         </tr>
       {% endfor %}

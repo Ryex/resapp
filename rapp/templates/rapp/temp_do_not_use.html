@@ -1,0 +1,36 @@
+{% extends 'rapp/base.html' %}
+{% block title %}Fire Alarm Reports{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+ <table class="table table-striped" style="border-collapse:collapse;">
+    <thead>
+        <tr>
+            <th>Date</th>   
+            <th>Hall</th>
+            <th>Room #</th>
+            <th>Resident Name</th>
+            <th>RA</th>
+            <th>Form ID</th>
+            <th>View Form</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for form in forms %}
+        <tr data-toggle="collapse" data-target="{{ form.id }}"" class="accordion-toggle">
+            <td>{{ form.published_date }}</td>
+            <td><a href="{% url 'form_detail' pk=form.id %}"> {{ form.status }}</a></td>
+            <td>{{ form.student.room_number }}</td>
+            <td><a href="{% url 'student_detail' pk=form.student.pk %}"> {{ form.student }}</a></td>
+            <td><a href="{% url 'form_detail' pk=form.pk %}"> {{ form.author }}</a></td>
+            <td>{{ form.id }}</td>
+            <td><button type="button" class="btn btn-secondary btn-sm" data-toggle="collapse" data-target="#{{ form.id }}">View Form Details</td>
+        </tr>
+        <tr>
+            <td colspan="7" class="hiddenRow"><div id="{{ form.id }}" class="accordian-body collapse"><blockquote><a href="#">View Student Signature</a><br><a href="#">View RA Signature</a></blockquote></div></td>
+        </tr>
+      {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
