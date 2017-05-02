@@ -651,7 +651,12 @@ def submitLockoutForm(req):
     #     data = json.loads(req.POST.get("data", default="{}"))
     # except Exception:
     #     data = {}
-    data = json.loads(req.POST.get("data", default="{}"))
+    body = {}
+    try:
+        body = json.loads(req.body)
+    except Exception:
+        pass
+    data = body["data"] if "data" in body else {}
 
     data_keys = set(data.keys())
 
@@ -667,10 +672,13 @@ def submitLockoutForm(req):
             student_sig = data["student_sig"]
             form.verification_method = data["verification_method"]
 
-            try:
-                sig = base64.decodebytes(data["student_sig"].encode("utf-8"))
-            except Exception:
-                sig = bytes(b'')
+            sig = data["student_sig"]
+            print(type(sig))
+            if type(sig) is not dict:
+                try:
+                    sig = base64.decodebytes(data["student_sig"].encode("utf-8"))
+                except Exception:
+                    sig = bytes(b'')
 
             form.student_sig = sig
 
