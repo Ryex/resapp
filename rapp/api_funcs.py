@@ -669,7 +669,7 @@ def submitLockoutForm(req):
             form.room_number = data["room_number"]
             student_name = data["student"].split(" ")
             form.student = Resident.objects.get(first_name=student_name[0], last_name=student_name[1])
-            student_sig = data["student_sig"]
+            # student_sig = data["student_sig"]
             form.verification_method = data["verification_method"]
 
             # sig = data["student_sig"]
