@@ -1,35 +1,60 @@
 import base64
 import hashlib
 import datetime
+import traceback
+import json
 from django.http import JsonResponse
+from django.utils import timezone
 import django.contrib.auth
 from django.core.exceptions import ObjectDoesNotExist
 from .models import *
 from django.contrib.auth.models import User, Group
 
+
 def private_or_callable(k, v):
     return k.startswith("_") or callable(v)
+
 
 def get_properties(obj):
     props = {k: v for k, v in vars(obj).items() if not private_or_callable(k, v)}
     return props
 
+
 def is_normal_type(obj):
     return type(obj) in (int, str, bool, list, dict, tuple)
 
+
 def extend_depth(props):
-    ext = { k : v if is_normal_type(v) else get_properties(v) for k, v in props.items()}
+    ext = {k: v if is_normal_type(v) else get_properties(v) for k, v in props.items()}
     return ext
 
+
 def trunate_to_ids(props):
-    trunc = { k : v if is_normal_type(v) or not hasattr("id") else getattr(v, "id") for k, v in props.items()}
+    trunc = {k: v if is_normal_type(v) or not hasattr(v, "id") else getattr(v, "id") for k, v in props.items()}
     return trunc
+
+
+def protect_api(func):
+
+    def protect(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            return render_json(None, {
+                "msg": str(e),
+                "code": 500,
+                "source": "api",
+                "trace": traceback.format_exc()
+            })
+    return protect
+
 
 def api_url(urlpat):
     """a decorator function to tag function with their param regexp"""
     def decorate(func):
-        func.__urlpattern__ = urlpat
-        return func
+        protected = protect_api(func)
+        protected.__urlpattern__ = urlpat
+        return protected
     return decorate
 
 
@@ -64,15 +89,26 @@ def authorize(func):
     set req.user to the user object
     '''
     def auth_wrapper(req, *args, **kwargs):
-        auth_header = req.META.get('Authorization')
+        auth_header = req.META.get('HTTP_AUTHORIZATION')
+  
+        if not auth_header:
+            return render_json(
+                None,
+                {
+                    "msg": "Not Authorized",
+                    "code": 401,
+                    "source": "Auth"
+                }
+            )
+
         header_parts = auth_header.split(' ')
         authflag = False
         if len(header_parts) == 2 and header_parts[0].upper() == 'TOKEN':
             token = header_parts[1]
             user = None
             try:
-                token = models.AuthToken.objects.get(token=token)
-                if token.valid and datetime.datetime.now() < token.expires:
+                token = AuthToken.objects.get(token=token)
+                if token.valid and timezone.now() < token.expires:
                     user = token.user
             except ObjectDoesNotExist:
                 pass
@@ -103,18 +139,23 @@ def auth(req):
     err = None
 
     if req.method == "POST":
-        if 'user' in req.POST and 'pass' in req.POST:
+        if (('user' in req.POST or 'username' in req.POST) and
+                ('pass' in req.POST or 'password' in req.POST)):
+
+            uname = req.POST.get('user', default=None) or req.POST.get('username')
+            passw = req.POST.get('pass', default=None) or req.POST.get('password')
+
             try:
                 from django.contrib.auth import authenticate
-                user = authenticate(username=req.POST['user'], password=req.POST['pass'])
+                user = authenticate(username=uname, password=passw)
                 if user is not None:
-                    issued = datetime.dateime.now()
-                    token = models.AuthToken(user=user)
+                    issued = timezone.now()
+                    token = AuthToken(user=user)
                     digest = token.generate_token()
                     token.save()
                     result = {
                         "token": digest,
-                        "expires": toke.expires.isoformat(),
+                        "expires": token.expires.isoformat(),
                     }
                 else:
                     err = {
@@ -152,7 +193,7 @@ def expire(req):
     result = None
     err = None
 
-    if req.token.valid and datetime.datetime.now() < req.token.expires:
+    if req.token.valid and timezone.now() < req.token.expires:
         req.token.valid = False
         result = {
             "success": True
@@ -606,7 +647,11 @@ def submitLockoutForm(req):
     needed_keys = set(["author", "hall", "room_number", "student", "student_sig", "verification_method"])
     extra_keys = set(["date"])
 
-    data = req.POST.get("data", default={})
+    # try:
+    #     data = json.loads(req.POST.get("data", default="{}"))
+    # except Exception:
+    #     data = {}
+    data = json.loads(req.POST.get("data", default="{}"))
 
     data_keys = set(data.keys())
 
@@ -616,15 +661,18 @@ def submitLockoutForm(req):
             author_name = data["author"].split(" ")
             form.author = RA.objects.get(first_name=author_name[0], last_name=author_name[1])
             form.hall = ResidenceHall.objects.get(name=data["hall"])
-            room_number = data["room_number"]
+            form.room_number = data["room_number"]
             student_name = data["student"].split(" ")
-            student = Resident.objects.get(first_name=student_name[0], last_name=student_name[1])
+            form.student = Resident.objects.get(first_name=student_name[0], last_name=student_name[1])
             student_sig = data["student_sig"]
-            verification_method = data["verification_method"]
+            form.verification_method = data["verification_method"]
 
-            sig = base64.decodestring(data["student_sig"])
+            try:
+                sig = base64.decodebytes(data["student_sig"].encode("utf-8"))
+            except Exception:
+                sig = bytes(b'')
 
-            form.student_sig = bytes(sig)
+            form.student_sig = sig
 
             if extra_keys.issubset(data_keys):
                 form.date = datetime.datetime.strptime(date["date"], "%Y-%m-%d")
@@ -633,6 +681,13 @@ def submitLockoutForm(req):
                 form.date = datetime.date.today()
 
             form.save()
+
+            fdata = get_properties(form)
+            fdata = trunate_to_ids(fdata)
+            fdata["student_sig"] = fdata["student_sig"].decode('utf-8')
+            result = {
+                "form": fdata
+            }
 
         except ObjectDoesNotExist as e:
             err = {

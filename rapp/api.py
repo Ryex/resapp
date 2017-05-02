@@ -1,5 +1,6 @@
 # from inspect import signature
 from django.conf.urls import url
+from django.views.decorators.csrf import csrf_exempt
 from . import api_funcs
 
 
@@ -60,6 +61,7 @@ ENDPOINTS = [
     "editIssueComment",
     "createRoundData",
     "editRoundData",
+    "submitLockoutForm",
 
     # SEARCH
 
@@ -81,9 +83,13 @@ def make_url_patterns():
     for endpoint in ENDPOINTS:
         func = getattr(api_funcs, endpoint)
         if hasattr(func, "__urlpattern__"):
-            urlpat = func.__urlpattern__
-            pattern = r"^{}/{}/{}/$".format(URL_TOP, endpoint.lower(), urlpat)
-            url_patterns.append(url(pattern, func))
+            urlpat = func.__urlpattern__.strip()
+            if not urlpat:
+                urlpat = "/"
+            else:
+                urlpat = "/{}/".format(urlpat)
+            pattern = r"^{}/{}{}$".format(URL_TOP, endpoint.lower(), urlpat)
+            url_patterns.append(url(pattern,  csrf_exempt(func)))
         else:
             continue
         # sig = signature(func)

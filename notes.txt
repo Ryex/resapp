@@ -1,0 +1,61 @@
+RoundArea -> Building zone
+
+new RooundArea -> contains round
+    have assigned RA
+
+
+userinfo need to return RA round info if exists
+
+get rid of round template
+
+
+
+getbuildingzone
+    vectores, parretn, children, lables, name
+
+    info to draw - nodes
+
+
+getpermantenodesbyzone
+    
+    list of node object
+        name
+        location
+        unresolved issue objects
+
+getissuenodesbyzone
+
+    list of nodes with unresolved issues
+        name
+        location
+        list of issueobjjets (should only be 1)
+
+
+createnodeissue
+    build node and issue at same time
+
+    node & issue name is author name
+
+    send:
+    zone
+    location    
+    content
+
+    return node id & issue id
+
+
+Image model
+    url
+    atach ids
+    (issueid, formid, noteid)
+
+createimage
+
+
+
+
+
+
+PROIORTY:
+ISSUE > FORMS > Residents > Rounds
+

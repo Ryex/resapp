@@ -193,12 +193,15 @@ class AuthToken(models.Model):
     def generate_token(self):
         '''issued = isoformat timestamp'''
         signer = Signer()
+        if not self.issued:
+            self.issued = timezone.now()
+            self.expires = now_add_hours_lambda(4)
         mac = self.user.username + self.issued.isoformat()
         signed_mac = signer.sign(mac)
         token = hashlib.sha256(signed_mac.encode('utf-8'))
         digest = base64.urlsafe_b64encode(token.digest())
-        self.token = digest
-        return digest
+        self.token = digest.decode("utf-8")
+        return self.token
 
 
 class Note(models.Model):
