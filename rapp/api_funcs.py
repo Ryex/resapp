@@ -96,7 +96,7 @@ def authorize(func):
     return auth_wrapper
 
 
-@api_url(r"auth")
+@api_url(r"")
 def auth(req):
     """"""
     result = None
@@ -145,7 +145,7 @@ def auth(req):
 
 
 
-@api_url(r"expire")
+@api_url(r"")
 @authorize
 def expire(req):
     """"""
@@ -167,7 +167,7 @@ def expire(req):
 
     return render_json(result, err)
 
-@api_url(r"getuser/([0-9]+)")
+@api_url(r"([0-9]+)")
 @authorize
 def getUser(req, user_id):
     """"""
@@ -200,7 +200,7 @@ def getUser(req, user_id):
     return render_json(result, err)
 
 
-@api_url(r"getuserbyname/(\w+)/(\w+)")
+@api_url(r"(\w+)/(\w+)")
 @authorize
 def getUserByName(req, first, last):
     """"""
@@ -212,7 +212,7 @@ def getUserByName(req, first, last):
     return render_json(result, err)
 
 
-@api_url(r"getresidentbyname/(\w+)/(\w+)")
+@api_url(r"(\w+)/(\w+)")
 @authorize
 def getResidentByName(req, first, last):
     """"""
@@ -224,7 +224,7 @@ def getResidentByName(req, first, last):
     return render_json(result, err)
 
 
-@api_url(r"getresidentbyid/([0-9]+)")
+@api_url(r"([0-9]+)")
 @authorize
 def getResidentByID(req, rid):
     """"""
@@ -236,7 +236,7 @@ def getResidentByID(req, rid):
     return render_json(result, err)
 
 
-@api_url(r"getresidentbyroom/(.+)/(.+)")
+@api_url(r"(.+)/(.+)")
 @authorize
 def getResidentByRoom(req, hall, room):
     """"""
@@ -596,9 +596,9 @@ def createForm(req):
     return render_json(result, err)
 
 
-@api_url(r"submitlockoutform")
+@api_url(r"")
 @authorize
-def submmitLockoutForm(req):
+def submitLockoutForm(req):
     """"""
     result = None
     err = None
