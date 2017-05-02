@@ -82,7 +82,7 @@ def make_url_patterns():
         func = getattr(api_funcs, endpoint)
         if hasattr(func, "__urlpattern__"):
             urlpat = func.__urlpattern__
-            pattern = r"^{}/{]/{}/$".format(URL_TOP, endpoint.lower(), urlpat)
+            pattern = r"^{}/{}/{}/$".format(URL_TOP, endpoint.lower(), urlpat)
             url_patterns.append(url(pattern, func))
         else:
             continue
