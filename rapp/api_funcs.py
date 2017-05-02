@@ -644,8 +644,8 @@ def submitLockoutForm(req):
     result = None
     err = None
 
-    needed_keys = set(["author", "hall", "room_number", "student", "student_sig", "verification_method"])
-    extra_keys = set(["date"])
+    needed_keys = set(["author", "hall", "room_number", "student",  "verification_method"])
+    extra_keys = set(["date", "student_sig",])
 
     # try:
     #     data = json.loads(req.POST.get("data", default="{}"))
@@ -653,7 +653,7 @@ def submitLockoutForm(req):
     #     data = {}
     body = {}
     try:
-        body = json.loads(req.body)
+        body = json.loads(req.body.decode('utf-8'))
     except Exception:
         pass
     data = body["data"] if "data" in body else {}
@@ -672,15 +672,15 @@ def submitLockoutForm(req):
             student_sig = data["student_sig"]
             form.verification_method = data["verification_method"]
 
-            sig = data["student_sig"]
-            print(type(sig))
-            if type(sig) is not dict:
-                try:
-                    sig = base64.decodebytes(data["student_sig"].encode("utf-8"))
-                except Exception:
-                    sig = bytes(b'')
+            # sig = data["student_sig"]
+            # print(type(sig))
+            # if type(sig) is not dict:
+            #     try:
+            #         sig = base64.decodebytes(data["student_sig"].encode("utf-8"))
+            #     except Exception:
+            #         sig = bytes(b'')
 
-            form.student_sig = sig
+            # form.student_sig = sig
 
             if extra_keys.issubset(data_keys):
                 form.date = datetime.datetime.strptime(date["date"], "%Y-%m-%d")
@@ -692,7 +692,8 @@ def submitLockoutForm(req):
 
             fdata = get_properties(form)
             fdata = trunate_to_ids(fdata)
-            fdata["student_sig"] = fdata["student_sig"].decode('utf-8')
+            # fdata["student_sig"] = fdata["student_sig"].decode('utf-8')
+            fdata["student_sig"] = None
             result = {
                 "form": fdata
             }
