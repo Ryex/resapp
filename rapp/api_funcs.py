@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import datetime
-import dateutil.parser
 from django.http import JsonResponse
 import django.contrib.auth
 from django.core.exceptions import ObjectDoesNotExist
