@@ -74,12 +74,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'espinlla',
-        'USER': 'espinlla',
-        'PASSWORD': 'PapaShin',
-        'HOST': 'espinlla.c2nsqhktnekt.us-west-2.rds.amazonaws.com',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -123,12 +119,7 @@ DATE_INPUT_FORMATS = ('%m/%d/%y %H:%M')
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'lu.jane37@gmail.com'
-EMAIL_HOST_PASSWORD = 'ksnadmmabgtbrwyb'
 
 LOGIN_REDIRECT_URL = '/'
+
+TOKEN_AUTH_HOURS = 4

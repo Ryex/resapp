@@ -6,9 +6,10 @@ from django.db import models
 from django import forms
 from django.utils import timezone
 from django.core.mail import send_mail
-from django.contrib import postgres
+#from django.contrib import postgres
 from django.core.signing import Signer
-import django.contrib.postgres.fields #force the module to load
+#import django.contrib.postgres.fields #force the module to load
+from django.conf import settings
 
 #############################################
 # STUDENT CLASSES #
@@ -173,36 +174,38 @@ class ConditionReport(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     editedby = models.ForeignKey('auth.user', related_name='editedby')
-    images = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    images = postgres.fields.ArrayField(base_field=models.IntegerField())
 
     def empty(self):
         # return via back relation if no residents are assigned to the room
         pass
 
-
-def now_add_hours_lambda(h):
-    return timezone.now() + datetime.timedelta(hours=h)
-
-
 class AuthToken(models.Model):
     token = models.CharField(primary_key=True, max_length=64, unique=True, db_index=True)
     user = models.ForeignKey('auth.user')
-    issued = models.DateTimeField(auto_now_add=True)
-    expires = models.DateTimeField(default=now_add_hours_lambda(4))
+    issued = models.DateTimeField()
+    expires = models.DateTimeField()
     valid = models.BooleanField(default=True)
 
     def generate_token(self):
         '''issued = isoformat timestamp'''
         signer = Signer()
         if not self.issued:
-            self.issued = timezone.now()
-            self.expires = now_add_hours_lambda(4)
+            self.set_issue_time()
         mac = self.user.username + self.issued.isoformat()
         signed_mac = signer.sign(mac)
         token = hashlib.sha256(signed_mac.encode('utf-8'))
         digest = base64.urlsafe_b64encode(token.digest())
         self.token = digest.decode("utf-8")
         return self.token
+
+    def set_issue_time(self, time=None):
+        '''If time is not provided or is the wrong type defaults to now'''
+        if type(time) is not datetime.datetime:
+            time = timezone.now()
+        self.issued = time
+        self.expires = time + datetime.timedelta(hours=settings.TOKEN_AUTH_HOURS)
+
 
 
 class Note(models.Model):
@@ -213,7 +216,7 @@ class Note(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     content = models.TextField(max_length=1000)  # TODO perhaps be json field
-    # comments = postgres.fields.ArrayField(base_field=models.IntegerField)  # Access through back related set
+#    # comments = postgres.fields.ArrayField(base_field=models.IntegerField)  # Access through back related set
     access = models.ManyToManyField("auth.user", related_name='note_access')
     #access_level = models.CharField(max_length=2, choices=auth.user.ACCESS_LEVELS, default=auth.user.RA)
 
@@ -228,7 +231,7 @@ class FormTemplate(models.Model):
     edited = models.DateTimeField(auto_now=True)
     editedby = models.ForeignKey('auth.user', related_name='formtemplate_editedby')
     templatedata = models.ForeignKey('FromTemplateData')
-    # versions = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
+#    # versions = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
 
     def __str__(self):
         return '%s' % (self.name)
@@ -240,7 +243,7 @@ class FromTemplateData(models.Model):
     author = models.ForeignKey('auth.user')
     from_template = models.ForeignKey('FormTemplate')
     template = models.TextField(max_length=1000)
-    pairs = postgres.fields.JSONField()  # JSON pairs of names to types
+#    pairs = postgres.fields.JSONField()  # JSON pairs of names to types
 
 
 class FormData(models.Model):
@@ -260,8 +263,8 @@ class FormData(models.Model):
     editedby = models.ForeignKey('auth.user', related_name='formdata_editedby')
     template = models.ForeignKey('FromTemplateData')
     status = models.CharField(max_length=2, choices=STATUSES)
-    data = postgres.fields.JSONField()  # json keyvalue pairs
-    images = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    data = postgres.fields.JSONField()  # json keyvalue pairs
+#    images = postgres.fields.ArrayField(base_field=models.IntegerField())
 
 #############################################
 # Round and Issue system
@@ -270,16 +273,16 @@ class FormData(models.Model):
 class BuildingZone(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
-    vectors = postgres.fields.ArrayField(
-                base_field=postgres.fields.ArrayField(
-                    base_field=postgres.fields.ArrayField(
+#    vectors = postgres.fields.ArrayField(
+#                base_field=postgres.fields.ArrayField(
+#                    base_field=postgres.fields.ArrayField(
                         base_field=models.IntegerField()
                     )
                 )
             )
     parent = models.ForeignKey('BuildingZone', null=True,)
     # children = [areaid, areaid areaid, ...]
-    gps = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    gps = postgres.fields.ArrayField(base_field=models.IntegerField())
 
     def __str__(self):
         return '%s' % (self.name)
@@ -300,7 +303,7 @@ class BuildingZoneNode(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(max_length=1000)
     zone = models.ForeignKey('BuildingZone')
-    location = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    location = postgres.fields.ArrayField(base_field=models.IntegerField())
     check = models.BooleanField()
 
     def __str__(self):
@@ -312,7 +315,7 @@ class BuildingZoneLabel(models.Model):
     name = models.CharField(max_length=100)
     zone = models.ForeignKey('BuildingZone', related_name='zone')
     link = models.ForeignKey('BuildingZone', related_name='link')
-    location = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    location = postgres.fields.ArrayField(base_field=models.IntegerField())
 
     def __str__(self):
         return '%s' % (self.name)
@@ -360,8 +363,8 @@ class Issue(models.Model):
     content = models.TextField(max_length=1000)
     node = models.ForeignKey('RoundArea')
     status = models.CharField(max_length=2, choices=STATUSES)
-    # comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
-    images = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    # comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
+#    images = postgres.fields.ArrayField(base_field=models.IntegerField())
 
     def __str__(self):
         return '%s' % (self.name)
@@ -375,10 +378,10 @@ class IssueComment(models.Model):
     edited = models.DateTimeField(auto_now=True)
     editedby = models.ForeignKey('auth.user', related_name='issuecomment_editedby')
     content = models.TextField(max_length=1000)
-    # comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
+#    # comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
     access = models.ManyToManyField("auth.user", related_name='issuecomment_access')
     #access_level = models.CharField(max_length=2, choices=auth.user.ACCESS_LEVELS, default=auth.user.RA)
-    images = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    images = postgres.fields.ArrayField(base_field=models.IntegerField())
 
 
 class RoundData(models.Model):
@@ -398,8 +401,8 @@ class RoundData(models.Model):
     editedby = models.ForeignKey('auth.user', related_name='rounddata_editedby')
     area = models.ForeignKey('RoundArea')
     status = models.CharField(max_length=2, choices=STATUSES)
-    data = postgres.fields.JSONField()  # json keyvalue pairs
-    images = postgres.fields.ArrayField(base_field=models.IntegerField())
+#    data = postgres.fields.JSONField()  # json keyvalue pairs
+#    images = postgres.fields.ArrayField(base_field=models.IntegerField())
 
 
 #############################################
