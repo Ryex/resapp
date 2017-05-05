@@ -132,3 +132,5 @@ EMAIL_HOST_USER = 'lu.jane37@gmail.com'
 EMAIL_HOST_PASSWORD = 'ksnadmmabgtbrwyb'
 
 LOGIN_REDIRECT_URL = '/'
+
+TOKEN_AUTH_HOURS = 4
