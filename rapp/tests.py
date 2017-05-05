@@ -256,7 +256,7 @@ class AuthTokenTest(TestCase):
         t2.user = self.user
         #but wait, if generating before setting date it should get auto set to now!
         now = timezone.now()
-        fudge = now + datetime.timedelta(microseconds=5000) # wow thus number needs to be big...
+        fudge = now + datetime.timedelta(seconds=2) # wow thus number needs to be big...
         t2.generate_token()
         # the actualt set opperation happend AFTER we stored no so test a range with some fudge
         self.assertTrue(t2.issued >= now and t2.issued <= fudge,

@@ -90,7 +90,7 @@ def authorize(func):
     '''
     def auth_wrapper(req, *args, **kwargs):
         auth_header = req.META.get('HTTP_AUTHORIZATION')
-  
+
         if not auth_header:
             return render_json(
                 None,
@@ -149,7 +149,6 @@ def auth(req):
                 from django.contrib.auth import authenticate
                 user = authenticate(username=uname, password=passw)
                 if user is not None:
-                    issued = timezone.now()
                     token = AuthToken(user=user)
                     digest = token.generate_token()
                     token.save()
