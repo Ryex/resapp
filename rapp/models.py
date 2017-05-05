@@ -2,6 +2,7 @@ import datetime
 import hashlib
 import hmac
 import base64
+import django
 from django.db import models
 from django import forms
 from django.utils import timezone
@@ -181,7 +182,7 @@ class ConditionReport(models.Model):
         pass
 
 
-def validate_token(value):
+def valid_base64_sha(value):
     '''
     base64 decode the data and check if it's 32 bytes.
 
@@ -192,9 +193,18 @@ def validate_token(value):
     and containes 32 bytes should be suffecient
     '''
     try:
-        return value or len(base64.urlsafe_b64decode(value)) == 32
+        if value:
+            return len(base64.urlsafe_b64decode(value)) == 32
+        return False
     except base64.binascii.Error:
         return False
+
+def validate_token(value):
+    if not valid_base64_sha(value):
+        raise django.core.exceptions.ValidationError(
+            '%(value)s is not a valid base64 encoded sha',
+            params={'value': value}
+        )
 
 
 
