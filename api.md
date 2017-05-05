@@ -3,8 +3,9 @@
 
 ## Table of Contence
 
-<!-- MarkdownTOC autolink=true depth=3 -->
+<!-- TOC depthFrom:undefined depthTo:undefined withLinks:undefined updateOnSave:undefined orderedList:undefined -->
 
+<!-- /TOC -->
 - [Genral](#genral)
     - [Format](#format)
     - [Returns](#returns)
@@ -538,7 +539,7 @@ Returns
 {
     "err":{},
     "result": {
-        "token": "BASE64TOKEN(length to be determined)",
+        "token": "8IVbciC5WwDTW4m9KtzL8cSA9ICK/iZ2pqS8y-X3KSw=",
         "expires": "2017-08-30T14:32:03",
     }
 }
