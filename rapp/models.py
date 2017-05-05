@@ -180,15 +180,34 @@ class ConditionReport(models.Model):
         # return via back relation if no residents are assigned to the room
         pass
 
+
+def validate_token(value):
+    '''
+    base64 decode the data and check if it's 32 bytes.
+
+    tokens are encoded sha256 hashes
+    sha256 hashes are always 256 bits or 32 bytes long
+
+    checking if the data encoded in a token decodes as valid base64
+    and containes 32 bytes should be suffecient
+    '''
+    try:
+        return value or len(base64.urlsafe_b64decode(value)) == 32
+    except base64.binascii.Error:
+        return False
+
+
+
 class AuthToken(models.Model):
-    token = models.CharField(primary_key=True, max_length=64, unique=True, db_index=True)
+    token = models.CharField(primary_key=True, max_length=64, unique=True, db_index=True, validators=[validate_token])
     user = models.ForeignKey('auth.user')
-    issued = models.DateTimeField()
-    expires = models.DateTimeField()
+    issued = models.DateTimeField(null=False)
+    expires = models.DateTimeField(null=False)
     valid = models.BooleanField(default=True)
 
     def generate_token(self):
         '''issued = isoformat timestamp'''
+        self.clean_fields(exclude=('token', 'issued', 'expires'))
         signer = Signer()
         if not self.issued:
             self.set_issue_time()
@@ -205,6 +224,11 @@ class AuthToken(models.Model):
             time = timezone.now()
         self.issued = time
         self.expires = time + datetime.timedelta(hours=settings.TOKEN_AUTH_HOURS)
+
+    def save(self, *args, **kwargs):
+        """force the model to validate on save."""
+        self.full_clean()
+        super(AuthToken, self).save(*args, **kwargs)
 
 
 
