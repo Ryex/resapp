@@ -240,8 +240,6 @@ class AuthToken(models.Model):
         self.full_clean()
         super(AuthToken, self).save(*args, **kwargs)
 
-
-
 class Note(models.Model):
     id = models.AutoField(primary_key=True)
     top = models.BooleanField(default=False)
@@ -250,7 +248,7 @@ class Note(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     content = models.TextField(max_length=1000)  # TODO perhaps be json field
-    comments = postgres.fields.ArrayField(base_field=models.IntegerField)  # Access through back related set
+    #comments = postgres.fields.ArrayField(base_field=models.IntegerField)  # Access through back related set
     access = models.ManyToManyField("auth.user", related_name='note_access')
     #access_level = models.CharField(max_length=2, choices=auth.user.ACCESS_LEVELS, default=auth.user.RA)
 
@@ -265,7 +263,7 @@ class FormTemplate(models.Model):
     edited = models.DateTimeField(auto_now=True)
     editedby = models.ForeignKey('auth.user', related_name='formtemplate_editedby')
     templatedata = models.ForeignKey('FromTemplateData')
-    versions = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
+    #versions = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
 
     def __str__(self):
         return '%s' % (self.name)
@@ -397,7 +395,7 @@ class Issue(models.Model):
     content = models.TextField(max_length=1000)
     node = models.ForeignKey('RoundArea')
     status = models.CharField(max_length=2, choices=STATUSES)
-    comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
+    #comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
     images = postgres.fields.ArrayField(base_field=models.IntegerField())
 
     def __str__(self):
@@ -412,7 +410,7 @@ class IssueComment(models.Model):
     edited = models.DateTimeField(auto_now=True)
     editedby = models.ForeignKey('auth.user', related_name='issuecomment_editedby')
     content = models.TextField(max_length=1000)
-    comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
+    #comments = postgres.fields.ArrayField(base_field=models.IntegerField) # Access through back related set
     access = models.ManyToManyField("auth.user", related_name='issuecomment_access')
     #access_level = models.CharField(max_length=2, choices=auth.user.ACCESS_LEVELS, default=auth.user.RA)
     images = postgres.fields.ArrayField(base_field=models.IntegerField())
